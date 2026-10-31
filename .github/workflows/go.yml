@@ -1,0 +1,36 @@
+name: Kompilacja Linux i Windows EXE
+
+on:
+  push:
+    tags:
+      - 'v*' # Uruchomi się, gdy nadasz wersji tag (np. v1.0.0)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Pobranie kodu z repozytorium
+        uses: actions/checkout@v4
+
+      - name: Instalacja środowiska Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Kompilacja dla Linuxa
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o moja-aplikacja-linux main.go
+
+      - name: Kompilacja dla Windowsa (EXE)
+        run: |
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o moja-aplikacja-windows.exe main.go
+
+      - name: Stworzenie Wydania (Release) i dodanie obu plików
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            moja-aplikacja-linux
+            moja-aplikacja-windows.exe
